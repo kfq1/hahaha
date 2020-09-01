@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<script src="utils/jquery-3.5.1.js"></script>
+<script src="plugs/layui/layui.all.js"></script>
+<style>
+    #form1{
+        display: none;
+        border: 1px solid red;
+    }
+    #form2{
+        display: none;
+        border: 1px solid red;
+    }
+</style>
+<body>
+
+<div>
+    <div id="userinfo">
+        <a href="javaxcript:;" id="a1">登录</a>
+        <span>|</span>
+        <a href="javaxcript:;" id="a2">注册</a>
+    </div>
+</div>
+
+<form action="" id="form1" method="post">
+   <p><input type="text" placeholder="账户" id="loginUser"/></p>
+   <p><input type="password" placeholder="密码" id="loginPwd"/></p>
+   <p><input type="button" value="登录" id="loginBtn"/></p>
+</form>
+
+<form action="" id="form2" method="post">
+    <p><input type="email" placeholder="邮箱" id="Email" name="Email"/></p>
+    <p><input type="text" placeholder="用户名" id="zhuceUser" name="user"/></p>
+    <p><input type="text" placeholder="密码" id="zhucePwd" name="pwd"/></p>
+    <p><input type="text" placeholder="确认密码" id="resPwd" name="respwd"/></p>
+    <p><input type="button" value="注册" id="loginBtn2"/></p>
+</form>
+</body>
+<script>
+    var a1=document.getElementById("a1")
+    var form1=document.getElementById("form1")
+    a1.onclick= function () {
+        form1.style.display="block"
+    }
+    $(function(){
+      $("#loginBtn").click(function(){
+          console.log("111")
+          let user=$("#loginUser").val();
+          let pwd=$("#loginPwd").val();
+          var layer=layui.layer
+          if(user.trim().length==0){
+             layer.alert("用户名不能为空")
+          }else if(pwd.trim().length==0){
+             layer.alert("密码不能为空")
+          }else{
+              var index=layer.load(2, {
+                  shade: [0.5, '#000'],
+                  content: '',
+                  success: function (layero) {
+                      layero.find('.layui-layer-content').css({
+                          'paddingTop': '40px',
+                          'textAlign': 'center',
+                          'backgroundPositionX': 'center',
+                          'color': '#fff',
+                          'fontSize': '16px',
+                          'fontWeight': '700',
+                          'letterSpacing': '2px'
+                      });
+                  }
+              });
+              $.ajax({
+                  type:"POST",
+                  url:"/userLogin",
+                  data:"user="+user+"&pwd="+pwd,
+                  success: function (data) {
+                      console.log(data)
+                      layer.close(index)
+                      layer.alert("data saved:"+data.message)
+                      if(data.code==200){
+                          $("#userinfo").html(" ")
+                          $("#userinfo").html("<img src='"+data.data[0].HeadImage+"'/>"+"<span>"+user+"</span>");
+                      }
+                  }
+              })
+          }
+      })
+    })
+
+
+    var a2=document.getElementById("a2")
+    var form2=document.getElementById("form2")
+    a2.onclick= function () {
+        form2.style.display="block"
+    }
+    var zhucestate=true;
+    $(function(){
+        $("#loginBtn2").click(function(){
+            console.log($("#form2").serialize())
+            //获取输入input内容
+            var obj={"Email":"邮箱",
+                     "zhuceUser":"用户名",
+                     "zhucePwd":"密码",
+                     "resPwd":"确认密码"
+            };
+            var layer=layui.layer
+            for(var key in obj){
+                console.log(key)
+                if($("#"+key).val().trim().length==0){
+                    alert(obj[key]+"不能为空");
+                    zhucestate=false;
+                    break;
+
+                }
+                if(zhucestate){
+                    var index=layer.load(2, {
+                        shade: [0.5, '#000'],
+                        content: '',
+                        success: function (layero) {
+                            layero.find('.layui-layer-content').css({
+                                'paddingTop': '40px',
+                                'textAlign': 'center',
+                                'backgroundPositionX': 'center',
+                                'color': '#fff',
+                                'fontSize': '16px',
+                                'fontWeight': '700',
+                                'letterSpacing': '2px'
+                            });
+                        }
+                    });
+                    $.ajax({
+                        type:"POST",
+                        url:"/reg",
+                        data:$("#form2").serialize(),
+                        success: function (msg) {
+                            layer.close(index)
+                            layer.alert("data saved:"+msg)
+                        }
+                    })
+                }
+            }
+        })
+    })
+
+</script>
+</html>
